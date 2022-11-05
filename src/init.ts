@@ -128,6 +128,8 @@ export const init = (payload: Payload, options: InitOptions): void => {
   }
 
   serverInitTelemetry(payload);
+
+  payload.initialized = true;
 };
 
 export const initAsync = async (payload: Payload, options: InitOptions): Promise<void> => {

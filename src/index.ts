@@ -129,6 +129,8 @@ export class Payload {
     await initAsync(this, options);
   }
 
+  initialized?: boolean
+
   getAdminURL = (): string => `${this.config.serverURL}${this.config.routes.admin}`;
 
   getAPIURL = (): string => `${this.config.serverURL}${this.config.routes.api}`;
