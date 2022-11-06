@@ -108,7 +108,7 @@ export const init = (payload: Payload, options: InitOptions): void => {
           }
         },
         identifyAPI('GraphQL'),
-        (req: PayloadRequest, res: Response) => graphQLHandler(req, res)(req, res),
+        (req: PayloadRequest, res: Response) => graphQLHandler(req, payload.config.routes.graphQL)(req, res),
       );
       initGraphQLPlayground(payload);
     }

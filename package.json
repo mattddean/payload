@@ -122,6 +122,7 @@
     "graphql-query-complexity": "^0.7.0",
     "graphql-scalars": "^1.4.0",
     "graphql-type-json": "^0.3.1",
+    "graphql-yoga": "three",
     "html-webpack-plugin": "^5.0.0-alpha.14",
     "http-status": "^1.4.2",
     "is-hotkey": "^0.2.0",
