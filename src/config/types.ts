@@ -84,6 +84,8 @@ export type InitOptions = {
    */
   local?: boolean;
 
+  config?: Config
+
   /**
    * A function that is called immediately following startup that receives the Payload instance as it's only argument.
    */

@@ -3,16 +3,15 @@
 import path from 'path';
 import pino from 'pino';
 import Logger from '../utilities/logger';
-import { SanitizedConfig } from './types';
+import { Config, SanitizedConfig } from './types';
 import findConfig from './find';
 import validate from './validate';
 import babelConfig from '../babel.config';
 
 const removedExtensions = ['.scss', '.css', '.svg', '.png', '.jpg', '.eot', '.ttf', '.woff', '.woff2'];
 
-const loadConfig = (logger?: pino.Logger): SanitizedConfig => {
+const loadConfig = (logger?: pino.Logger, configArg?: Config): SanitizedConfig => {
   const localLogger = logger ?? Logger();
-  const configPath = findConfig();
 
   removedExtensions.forEach((ext) => {
     require.extensions[ext] = () => null;
@@ -33,10 +32,17 @@ const loadConfig = (logger?: pino.Logger): SanitizedConfig => {
     ],
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  let config = require(configPath);
-
-  if (config.default) config = config.default;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let config: any;
+  let configPath: string | undefined;
+  if (configArg) {
+    config = configArg;
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    configPath = findConfig();
+    config = require(configPath);
+    if (config.default) config = config.default;
+  }
 
   const validatedConfig = validate(config, localLogger);
 
