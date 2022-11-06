@@ -50,7 +50,7 @@ const loadConfig = (logger?: pino.Logger, configArg?: Config): SanitizedConfig =
     ...validatedConfig,
     paths: {
       ...(validatedConfig.paths || {}),
-      configDir: path.dirname(configPath),
+      configDir: configPath ? path.dirname(configPath) : undefined,
       config: configPath,
     },
   };
