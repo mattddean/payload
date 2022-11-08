@@ -54,7 +54,11 @@ export const init = (payload: Payload, options: InitOptions): void => {
 
   payload.local = options.local;
 
-  payload.config = loadConfig(payload.logger, options.config);
+  if (options.validatedConfig) {
+    payload.config = options.validatedConfig;
+  } else {
+    payload.config = loadConfig(payload.logger);
+  }
 
   // If not initializing locally, scaffold router
   if (!payload.local) {

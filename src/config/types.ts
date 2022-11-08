@@ -86,6 +86,8 @@ export type InitOptions = {
 
   config?: Config
 
+  validatedConfig?: SanitizedConfig;
+
   /**
    * A function that is called immediately following startup that receives the Payload instance as it's only argument.
    */
