@@ -189,7 +189,7 @@ class ParamParser {
       if (priorSchemaType) {
         const priorSchemaTypeOptions = getSchemaTypeOptions(priorSchemaType);
         if (typeof priorSchemaTypeOptions.ref === 'string') {
-          const RefModel = mongoose.model(priorSchemaTypeOptions.ref) as any;
+          const RefModel = (mongoose.models[priorSchemaTypeOptions.ref] || mongoose.model(priorSchemaTypeOptions.ref)) as any;
 
           lastIncompletePath.complete = true;
 

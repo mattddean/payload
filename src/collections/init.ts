@@ -81,7 +81,7 @@ export default function registerCollections(ctx: Payload): void {
       versionSchema.plugin(paginate, { useEstimatedCount: true })
         .plugin(buildQueryPlugin);
 
-      ctx.versions[collection.slug] = mongoose.model(versionModelName, versionSchema) as CollectionModel;
+      ctx.versions[collection.slug] = (mongoose.models[versionModelName] || mongoose.model(versionModelName, versionSchema)) as CollectionModel;
     }
 
 

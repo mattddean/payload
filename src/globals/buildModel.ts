@@ -10,12 +10,13 @@ const buildModel = (config: SanitizedConfig): GlobalModel | null => {
 
     globalsSchema.plugin(buildQueryPlugin);
 
-    const Globals = mongoose.model('globals', globalsSchema) as GlobalModel;
-
-    Object.values(config.globals).forEach((globalConfig) => {
-      const globalSchema = buildSchema(config, globalConfig.fields, { global: true });
-      Globals.discriminator(globalConfig.slug, globalSchema);
-    });
+    const Globals = (mongoose.models.globals || mongoose.model('globals', globalsSchema)) as GlobalModel;
+    if (!mongoose.models.globals) {
+      Object.values(config.globals).forEach((globalConfig) => {
+        const globalSchema = buildSchema(config, globalConfig.fields, { global: true });
+        Globals.discriminator(globalConfig.slug, globalSchema);
+      });
+    }
 
     return Globals;
   }
