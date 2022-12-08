@@ -5,9 +5,13 @@ import { SiblingDatum } from './payload-types';
 import { firstArrayText, secondArrayText } from './shared';
 
 export const slug = 'posts';
+export const booleanPostsSlug = 'boolean-posts';
 export const readOnlySlug = 'read-only-collection';
+export const booleanReadOnlySlug = 'boolean-read-only-collection';
 export const restrictedSlug = 'restricted';
+export const booleanRestrictedSlug = 'boolean-restricted';
 export const restrictedVersionsSlug = 'restricted-versions';
+export const booleanRestrictedVersionsSlug = 'boolean-restricted-versions';
 export const siblingDataSlug = 'sibling-data';
 export const relyOnRequestHeadersSlug = 'rely-on-request-headers';
 
@@ -16,6 +20,13 @@ const openAccess = {
   read: () => true,
   update: () => true,
   delete: () => true,
+};
+
+const booleanOpenAccess = {
+  create: true,
+  read: true,
+  update: true,
+  delete: true,
 };
 
 const PublicReadabilityAccess: FieldAccess = ({ req: { user }, siblingData }) => {
@@ -32,7 +43,7 @@ const UseRequestHeadersAccess: FieldAccess = ({ req: { headers } }) => {
 
 export default buildConfig({
   admin: {
-    user: 'users'
+    user: 'users',
   },
   collections: [
     {
@@ -45,7 +56,7 @@ export default buildConfig({
           setTimeout(resolve, 50, true); // set to 'true' or 'false' here to simulate the response
         }),
       },
-      fields: []
+      fields: [],
     },
     {
       slug,
@@ -109,6 +120,67 @@ export default buildConfig({
       ],
     },
     {
+      slug: booleanPostsSlug,
+      access: {
+        ...booleanOpenAccess,
+        update: false,
+      },
+      fields: [
+        {
+          name: 'restrictedField',
+          type: 'text',
+          access: {
+            read: false,
+            update: false,
+          },
+        },
+        {
+          type: 'group',
+          name: 'group',
+          fields: [
+            {
+              name: 'restrictedGroupText',
+              type: 'text',
+              access: {
+                read: false,
+                update: false,
+                create: false,
+              },
+            },
+          ],
+        },
+        {
+          type: 'row',
+          fields: [
+            {
+              name: 'restrictedRowText',
+              type: 'text',
+              access: {
+                read: false,
+                update: false,
+                create: false,
+              },
+            },
+          ],
+        },
+        {
+          type: 'collapsible',
+          label: 'Access',
+          fields: [
+            {
+              name: 'restrictedCollapsibleText',
+              type: 'text',
+              access: {
+                read: false,
+                update: false,
+                create: false,
+              },
+            },
+          ],
+        },
+      ],
+    },
+    {
       slug: restrictedSlug,
       fields: [
         {
@@ -121,6 +193,21 @@ export default buildConfig({
         read: () => false,
         update: () => false,
         delete: () => false,
+      },
+    },
+    {
+      slug: booleanRestrictedSlug,
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+      ],
+      access: {
+        create: false,
+        read: false,
+        update: false,
+        delete: false,
       },
     },
     {
@@ -139,6 +226,21 @@ export default buildConfig({
       },
     },
     {
+      slug: booleanReadOnlySlug,
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+      ],
+      access: {
+        create: false,
+        read: true,
+        update: false,
+        delete: false,
+      },
+    },
+    {
       slug: restrictedVersionsSlug,
       versions: true,
       fields: [
@@ -149,6 +251,19 @@ export default buildConfig({
       ],
       access: {
         readVersions: () => false,
+      },
+    },
+    {
+      slug: booleanRestrictedVersionsSlug,
+      versions: true,
+      fields: [
+        {
+          name: 'name',
+          type: 'text',
+        },
+      ],
+      access: {
+        readVersions: false,
       },
     },
     {
@@ -220,9 +335,23 @@ export default buildConfig({
     });
 
     await payload.create({
+      collection: booleanReadOnlySlug,
+      data: {
+        name: 'boolean-read-only',
+      },
+    });
+
+    await payload.create({
       collection: restrictedVersionsSlug,
       data: {
         name: 'versioned',
+      },
+    });
+
+    await payload.create({
+      collection: booleanRestrictedVersionsSlug,
+      data: {
+        name: 'boolean-versioned',
       },
     });
 

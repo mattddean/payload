@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */
+import { AccessResult } from '../../../config/types';
 import { Field, fieldAffectsData, TabAsField, tabHasName } from '../../config/types';
 import { PayloadRequest } from '../../../express/types';
 import { traverseFields } from './traverseFields';
@@ -157,8 +158,16 @@ export const promise = async ({
     }
 
     // Execute access control
-    if (field.access && field.access.read) {
-      const result = overrideAccess ? true : await field.access.read({ req, id: doc.id as string | number, siblingData: siblingDoc, data: doc, doc });
+    if (field.access && field.access.read !== undefined) {
+      const readAccess = field.access.read;
+      let result: AccessResult;
+      if (overrideAccess) {
+        result = true;
+      } else if (typeof readAccess === 'boolean') {
+        result = readAccess;
+      } else {
+        result = await readAccess({ req, id: doc.id as string | number, siblingData: siblingDoc, data: doc, doc });
+      }
 
       if (!result) {
         delete siblingDoc[field.name];

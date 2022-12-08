@@ -23,8 +23,8 @@ const sanitizeGlobals = (collections: CollectionConfig[], globals: GlobalConfig[
     if (!sanitizedGlobal.access) sanitizedGlobal.access = {};
     if (!sanitizedGlobal.admin) sanitizedGlobal.admin = {};
 
-    if (!sanitizedGlobal.access.read) sanitizedGlobal.access.read = defaultAccess;
-    if (!sanitizedGlobal.access.update) sanitizedGlobal.access.update = defaultAccess;
+    if (sanitizedGlobal.access.read === undefined) sanitizedGlobal.access.read = defaultAccess;
+    if (sanitizedGlobal.access.update === undefined) sanitizedGlobal.access.update = defaultAccess;
 
     if (!sanitizedGlobal.hooks.beforeValidate) sanitizedGlobal.hooks.beforeValidate = [];
     if (!sanitizedGlobal.hooks.beforeChange) sanitizedGlobal.hooks.beforeChange = [];

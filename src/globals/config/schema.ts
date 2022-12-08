@@ -39,9 +39,9 @@ const globalSchema = joi.object().keys({
   }),
   endpoints: endpointsSchema,
   access: joi.object({
-    read: joi.func(),
-    readVersions: joi.func(),
-    update: joi.func(),
+    read: joi.alternatives(joi.func(), joi.bool()),
+    readVersions: joi.alternatives(joi.func(), joi.bool()),
+    update: joi.alternatives(joi.func(), joi.bool()),
   }),
   fields: joi.array(),
   versions: joi.alternatives().try(

@@ -35,13 +35,13 @@ export type FieldHookArgs<T extends TypeWithID = any, P = any, S = any> = {
 
 export type FieldHook<T extends TypeWithID = any, P = any, S = any> = (args: FieldHookArgs<T, P, S>) => Promise<P> | P;
 
-export type FieldAccess<T extends TypeWithID = any, P = any, U = any> = (args: {
+export type FieldAccess<T extends TypeWithID = any, P = any, U = any> = boolean | ((args: {
   req: PayloadRequest<U>
   id?: string | number
   data?: Partial<T>
   siblingData?: Partial<P>
   doc?: T
-}) => Promise<boolean> | boolean;
+}) => Promise<boolean> | boolean);
 
 export type Condition<T extends TypeWithID = any, P = any> = (data: Partial<T>, siblingData: Partial<P>) => boolean;
 

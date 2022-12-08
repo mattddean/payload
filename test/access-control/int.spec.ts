@@ -4,13 +4,16 @@ import type { Options as CreateOptions } from '../../src/collections/operations/
 import { Forbidden } from '../../src/errors';
 import type { PayloadRequest } from '../../src/types';
 import { initPayloadTest } from '../helpers/configHelpers';
-import { relyOnRequestHeadersSlug, requestHeaders, restrictedSlug, siblingDataSlug, slug } from './config';
-import type { Restricted, Post, SiblingDatum, RelyOnRequestHeader } from './payload-types';
+import { booleanPostsSlug, booleanRestrictedSlug, relyOnRequestHeadersSlug, requestHeaders, restrictedSlug, siblingDataSlug, slug } from './config';
+import type { Restricted, Post, SiblingDatum, RelyOnRequestHeader, BooleanPost, BooleanRestricted } from './payload-types';
 import { firstArrayText, secondArrayText } from './shared';
 
+// eslint-disable-next-line jest/no-focused-tests
 describe('Access Control', () => {
   let post1: Post;
   let restricted: Restricted;
+  let booleanAccessPost: BooleanPost;
+  let booleanAccessRestricted: BooleanRestricted;
 
   beforeAll(async () => {
     await initPayloadTest({ __dirname });
@@ -22,8 +25,18 @@ describe('Access Control', () => {
       data: { name: 'name' },
     });
 
+    booleanAccessPost = await payload.create<BooleanPost>({
+      collection: booleanPostsSlug,
+      data: { name: 'name' },
+    });
+
     restricted = await payload.create<Restricted>({
       collection: restrictedSlug,
+      data: { name: 'restricted' },
+    });
+
+    booleanAccessRestricted = await payload.create<BooleanRestricted>({
+      collection: booleanRestrictedSlug,
       data: { name: 'restricted' },
     });
   });
@@ -73,12 +86,23 @@ describe('Access Control', () => {
     expect(docOverride.array?.[1].text).toBe(secondArrayText);
   });
 
+  // eslint-disable-next-line jest/no-focused-tests
   describe('Collections', () => {
+    // eslint-disable-next-line jest/no-focused-tests
     describe('restricted collection', () => {
       it('field without read access should not show', async () => {
         const { id } = await createDoc<Post>({ restrictedField: 'restricted' });
 
         const retrievedDoc = await payload.findByID({ collection: slug, id, overrideAccess: false });
+
+        expect(retrievedDoc.restrictedField).toBeUndefined();
+      });
+
+      // eslint-disable-next-line jest/no-focused-tests
+      it('field without boolean read access should not show', async () => {
+        const { id } = await createDoc<BooleanPost>({ restrictedField: 'restricted' }, booleanPostsSlug);
+
+        const retrievedDoc = await payload.findByID({ collection: booleanPostsSlug, id, overrideAccess: false });
 
         expect(retrievedDoc.restrictedField).toBeUndefined();
       });
@@ -160,6 +184,17 @@ describe('Access Control', () => {
         await expect(req).rejects.toThrow(Forbidden);
       });
 
+      it('should allow overrideAccess for boolean access config: false', async () => {
+        const req = async () => payload.update<BooleanPost>({
+          collection: booleanPostsSlug,
+          id: booleanAccessPost.id,
+          data: { restrictedField: booleanAccessRestricted.id },
+          overrideAccess: false, // this should respect access control
+        });
+
+        await expect(req).rejects.toThrow(Forbidden);
+      });
+
       it('should allow overrideAccess: true', async () => {
         const doc = await payload.update<Post>({
           collection: slug,
@@ -171,6 +206,17 @@ describe('Access Control', () => {
         expect(doc).toMatchObject({ id: post1.id });
       });
 
+      it('should allow overrideAccess for boolean access config: true', async () => {
+        const doc = await payload.update<BooleanPost>({
+          collection: booleanPostsSlug,
+          id: booleanAccessPost.id,
+          data: { restrictedField: booleanAccessRestricted.id },
+          overrideAccess: true, // this should override access control
+        });
+
+        expect(doc).toMatchObject({ id: booleanAccessPost.id });
+      });
+
       it('should allow overrideAccess by default', async () => {
         const doc = await payload.update<Post>({
           collection: slug,
@@ -179,6 +225,16 @@ describe('Access Control', () => {
         });
 
         expect(doc).toMatchObject({ id: post1.id });
+      });
+
+      it('should allow overrideAccess for boolean access config by default', async () => {
+        const doc = await payload.update<BooleanPost>({
+          collection: booleanPostsSlug,
+          id: booleanAccessPost.id,
+          data: { restrictedField: booleanAccessRestricted.id },
+        });
+
+        expect(doc).toMatchObject({ id: booleanAccessPost.id });
       });
     });
 
@@ -196,6 +252,17 @@ describe('Access Control', () => {
         await expect(req).rejects.toThrow(Forbidden);
       });
 
+      it('should allow overrideAccess for boolean access config: false', async () => {
+        const req = async () => payload.update({
+          collection: booleanRestrictedSlug,
+          id: booleanAccessRestricted.id,
+          data: { name: updatedName },
+          overrideAccess: false, // this should respect access control
+        });
+
+        await expect(req).rejects.toThrow(Forbidden);
+      });
+
       it('should allow overrideAccess: true', async () => {
         const doc = await payload.update({
           collection: restrictedSlug,
@@ -205,6 +272,17 @@ describe('Access Control', () => {
         });
 
         expect(doc).toMatchObject({ id: restricted.id, name: updatedName });
+      });
+
+      it('should allow overrideAccess for boolean access config: true', async () => {
+        const doc = await payload.update({
+          collection: booleanRestrictedSlug,
+          id: booleanAccessRestricted.id,
+          data: { name: updatedName },
+          overrideAccess: true, // this should override access control
+        });
+
+        expect(doc).toMatchObject({ id: booleanAccessRestricted.id, name: updatedName });
       });
 
       it('should allow overrideAccess by default', async () => {

@@ -2,6 +2,7 @@ import { PayloadRequest } from '../../express/types';
 import { Permissions } from '../types';
 import { adminInit as adminInitTelemetry } from '../../utilities/telemetry/events/adminInit';
 import { tabHasName } from '../../fields/config/types';
+import { Access, AccessResult } from '../../config/types';
 
 const allOperations = ['create', 'read', 'update', 'delete'];
 
@@ -28,9 +29,15 @@ async function accessOperation(args: Arguments): Promise<Permissions> {
   const isLoggedIn = !!(user);
   const userCollectionConfig = (user && user.collection) ? config.collections.find((collection) => collection.slug === user.collection) : null;
 
-  const createAccessPromise = async (obj, access, operation, disableWhere = false) => {
+  const createAccessPromise = async (obj, access: Access, operation, disableWhere = false) => {
     const updatedObj = obj;
-    const result = await access({ req });
+
+    let result: AccessResult;
+    if (typeof access === 'boolean') {
+      result = access;
+    } else {
+      result = await access({ req });
+    }
 
     if (typeof result === 'object' && !disableWhere) {
       updatedObj[operation] = {
@@ -51,7 +58,7 @@ async function accessOperation(args: Arguments): Promise<Permissions> {
       if (field.name) {
         if (!updatedObj[field.name]) updatedObj[field.name] = {};
 
-        if (field.access && typeof field.access[operation] === 'function') {
+        if (field.access && (typeof field.access[operation] === 'boolean' || typeof field.access[operation] === 'function')) {
           promises.push(createAccessPromise(updatedObj[field.name], field.access[operation], operation, true));
         } else {
           updatedObj[field.name][operation] = {
@@ -88,7 +95,7 @@ async function accessOperation(args: Arguments): Promise<Permissions> {
     operations.forEach((operation) => {
       executeFieldPolicies(results[type][entity.slug].fields, entity.fields, operation);
 
-      if (typeof entity.access[operation] === 'function') {
+      if (typeof entity.access[operation] === 'boolean' || typeof entity.access[operation] === 'function') {
         promises.push(createAccessPromise(results[type][entity.slug], entity.access[operation], operation));
       } else {
         results[type][entity.slug][operation] = {

@@ -144,9 +144,9 @@ type AccessArgs<T = any, U = any> = {
  *
  * @see https://payloadcms.com/docs/access-control/overview
  */
-export type Access<T = any, U = any> = (
+export type Access<T = any, U = any> = boolean | ((
   args: AccessArgs<T, U>
-) => AccessResult | Promise<AccessResult>;
+) => AccessResult | Promise<AccessResult>);
 
 /** Equivalent to express middleware, but with an enhanced request object */
 export interface PayloadHandler {

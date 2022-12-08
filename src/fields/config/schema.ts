@@ -39,9 +39,9 @@ export const baseField = joi.object().keys({
   hidden: joi.boolean().default(false),
   validate: joi.func(),
   access: joi.object().keys({
-    create: joi.func(),
-    read: joi.func(),
-    update: joi.func(),
+    create: joi.alternatives(joi.func(), joi.bool()),
+    read: joi.alternatives(joi.func(), joi.bool()),
+    update: joi.alternatives(joi.func(), joi.bool()),
   }),
   hooks: joi.object()
     .keys({
