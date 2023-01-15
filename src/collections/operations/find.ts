@@ -177,7 +177,6 @@ async function find<T extends TypeWithID = any>(incomingArgs: Arguments): Promis
     ...result,
     docs: result.docs.map((doc) => {
       const sanitizedDoc = JSON.parse(JSON.stringify(doc));
-      sanitizedDoc.id = sanitizedDoc._id;
       return sanitizeInternalFields(sanitizedDoc);
     }),
   };

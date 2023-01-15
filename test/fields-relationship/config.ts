@@ -37,6 +37,15 @@ export default buildConfig({
   collections: [
     {
       slug,
+      access: {
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
+      },
+      versions: {
+        drafts: true,
+      },
       admin: {
         defaultColumns: [
           'id',
@@ -114,10 +123,28 @@ export default buildConfig({
     },
     {
       slug: relationOneSlug,
+      access: {
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
+      },
+      versions: {
+        drafts: true,
+      },
       fields: baseRelationshipFields,
     },
     {
       slug: relationTwoSlug,
+      access: {
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
+      },
+      versions: {
+        drafts: true,
+      },
       fields: baseRelationshipFields,
     },
     {
@@ -125,16 +152,30 @@ export default buildConfig({
       admin: {
         useAsTitle: 'name',
       },
-      fields: baseRelationshipFields,
       access: {
-        read: () => false,
-        create: () => false,
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
       },
+      versions: {
+        drafts: true,
+      },
+      fields: baseRelationshipFields,
     },
     {
       slug: relationWithTitleSlug,
       admin: {
         useAsTitle: 'name',
+      },
+      access: {
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
+      },
+      versions: {
+        drafts: true,
       },
       fields: baseRelationshipFields,
     },
@@ -142,6 +183,15 @@ export default buildConfig({
       slug: relationUpdatedExternallySlug,
       admin: {
         useAsTitle: 'name',
+      },
+      access: {
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
+      },
+      versions: {
+        drafts: true,
       },
       fields: [
         {
@@ -219,6 +269,15 @@ export default buildConfig({
     },
     {
       slug: collection1Slug,
+      access: {
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
+      },
+      versions: {
+        drafts: true,
+      },
       fields: [
         {
           type: 'text',
@@ -228,6 +287,15 @@ export default buildConfig({
     },
     {
       slug: collection2Slug,
+      access: {
+        create: () => true,
+        read: () => true,
+        update: () => true,
+        delete: () => true,
+      },
+      versions: {
+        drafts: true,
+      },
       fields: [
         {
           type: 'text',

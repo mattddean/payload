@@ -38,7 +38,7 @@ const batchAndLoadDocs = (req: PayloadRequest): BatchLoadFn<string, TypeWithID> 
   // };
 
   const batchByFindArgs = keys.reduce((batches, key) => {
-    const [collection, id, depth, currentDepth, locale, fallbackLocale, overrideAccess, showHiddenFields] = JSON.parse(key);
+    const [collection, id, depth, currentDepth, locale, fallbackLocale, overrideAccess, showHiddenFields, draft] = JSON.parse(key);
 
     const batchKeyArray = [
       collection,
@@ -48,6 +48,7 @@ const batchAndLoadDocs = (req: PayloadRequest): BatchLoadFn<string, TypeWithID> 
       fallbackLocale,
       overrideAccess,
       showHiddenFields,
+      draft,
     ];
 
     const batchKey = JSON.stringify(batchKeyArray);
@@ -69,7 +70,7 @@ const batchAndLoadDocs = (req: PayloadRequest): BatchLoadFn<string, TypeWithID> 
   // Run find requests in parallel
 
   const results = Object.entries(batchByFindArgs).map(async ([batchKey, ids]) => {
-    const [collection, depth, currentDepth, locale, fallbackLocale, overrideAccess, showHiddenFields] = JSON.parse(batchKey);
+    const [collection, depth, currentDepth, locale, fallbackLocale, overrideAccess, showHiddenFields, draft] = JSON.parse(batchKey);
 
     const result = await payload.find({
       collection,
@@ -87,13 +88,14 @@ const batchAndLoadDocs = (req: PayloadRequest): BatchLoadFn<string, TypeWithID> 
       showHiddenFields: Boolean(showHiddenFields),
       disableErrors: true,
       req,
+      draft,
     });
 
     // For each returned doc, find index in original keys
     // Inject doc within docs array if index exists
 
     result.docs.forEach((doc) => {
-      const docKey = JSON.stringify([collection, doc.id, depth, currentDepth, locale, fallbackLocale, overrideAccess, showHiddenFields]);
+      const docKey = JSON.stringify([collection, doc.id, depth, currentDepth, locale, fallbackLocale, overrideAccess, showHiddenFields, draft]);
       const docsIndex = keys.findIndex((key) => key === docKey);
 
       if (docsIndex > -1) {

@@ -1,3 +1,4 @@
+import type { PipelineStage } from 'mongoose';
 import { AccessResult } from '../../config/types';
 import { Where } from '../../types';
 import { Payload } from '../..';
@@ -81,7 +82,8 @@ export const mergeDrafts = async <T extends TypeWithID>({
   // and in the same loop, check if there are matched versions without a matched parent
   // This means that the newer version's parent should appear in the main query.
   // To do so, add the version's parent ID into an explicit `includedIDs` array
-  const versionCollectionMatchMap = await VersionModel.aggregate<AggregateVersion<T>>([
+
+  const pipeline: PipelineStage[] = [
     {
       $sort: Object.entries(paginationOptions.sort).reduce((sort, [key, order]) => {
         return {
@@ -122,8 +124,12 @@ export const mergeDrafts = async <T extends TypeWithID>({
       },
     },
     { $match: versionQuery },
-    { $limit: paginationOptions.limit },
-  ]).then((res) => res.reduce<VersionCollectionMatchMap<T>>((map, { _id, updatedAt, createdAt, version }) => {
+  ];
+  if (paginationOptions.limit !== undefined && paginationOptions.limit > 0) {
+    pipeline.push({ $limit: paginationOptions.limit });
+  }
+
+  const versionCollectionMatchMap = await VersionModel.aggregate<AggregateVersion<T>>(pipeline).then((res) => res.reduce<VersionCollectionMatchMap<T>>((map, { _id, updatedAt, createdAt, version }) => {
     const newMap = map;
     newMap[_id] = { version, updatedAt, createdAt };
 
@@ -188,13 +194,13 @@ export const mergeDrafts = async <T extends TypeWithID>({
     });
   }
 
-  if (excludedParentIDs.length > 0) {
-    finalQueryToBuild.where.and.push({
-      id: {
-        not_in: excludedParentIDs,
-      },
-    });
-  }
+  // if (excludedParentIDs.length > 0) {
+  //   finalQueryToBuild.where.and.push({
+  //     id: {
+  //       not_in: excludedParentIDs,
+  //     },
+  //   });
+  // }
 
   const finalQuery = await collection.Model.buildQuery(finalQueryToBuild, locale);
 

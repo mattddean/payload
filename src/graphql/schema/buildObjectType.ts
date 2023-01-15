@@ -60,6 +60,9 @@ type LocaleInputType = {
   },
   where: {
     type: GraphQLType;
+  },
+  draft: {
+    type: GraphQLType
   }
 }
 
@@ -174,11 +177,14 @@ function buildObjectType({
 
       const relatedCollectionSlug = field.relationTo;
 
+      // uploadArgs.draft = { type: GraphQLBoolean };
+
       const upload = {
         args: uploadArgs,
         type,
         extensions: { complexity: 20 },
         async resolve(parent, args, context) {
+          // const { draft } = args;
           const value = parent[field.name];
           const locale = args.locale || context.req.locale;
           const fallbackLocale = args.fallbackLocale || context.req.fallbackLocale;
@@ -194,6 +200,7 @@ function buildObjectType({
               fallbackLocale,
               false,
               false,
+              // draft,
             ]));
 
             return relatedDocument || null;
@@ -307,8 +314,10 @@ function buildObjectType({
         where?: unknown
         page?: unknown
         limit?: unknown
+        draft?: unknown
       } = {};
 
+      relationshipArgs.draft = { type: GraphQLBoolean };
       if (payload.config.localization) {
         relationshipArgs.locale = {
           type: payload.types.localeInputType,
@@ -331,6 +340,7 @@ function buildObjectType({
           const value = parent[field.name];
           const locale = args.locale || context.req.locale;
           const fallbackLocale = args.fallbackLocale || context.req.fallbackLocale;
+          const { draft } = args;
           let relatedCollectionSlug = field.relationTo;
 
           if (hasManyValues) {
@@ -355,6 +365,7 @@ function buildObjectType({
                 fallbackLocale,
                 false,
                 false,
+                draft,
               ]));
 
               if (result) {
@@ -400,6 +411,7 @@ function buildObjectType({
               fallbackLocale,
               false,
               false,
+              draft,
             ]));
 
             if (relatedDocument) {
